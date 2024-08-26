@@ -1,6 +1,5 @@
 package com.aixming.generator;
 
-import cn.hutool.captcha.generator.RandomGenerator;
 import com.aixming.model.MainTemplateConfig;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -9,7 +8,7 @@ import freemarker.template.TemplateException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author AixMing
@@ -43,7 +42,7 @@ public class DynamicGenerator {
         Template template = configuration.getTemplate(inputFile.getName());
 
         // 文件输出位置
-        FileWriter out = new FileWriter(outputPath);
+        FileWriter out = new FileWriter(outputPath, StandardCharsets.UTF_8);
         template.process(model, out);
         out.close();
     }
