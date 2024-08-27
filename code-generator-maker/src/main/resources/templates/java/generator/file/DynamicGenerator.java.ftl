@@ -1,4 +1,4 @@
-package com.aixming.generator;
+package ${basePackage}.generator;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author AixMing
- * @since 2024-08-21 21:10:12
+ * @author ${author}
  */
 public class DynamicGenerator {
 
@@ -31,4 +30,5 @@ public class DynamicGenerator {
         template.process(model, out);
         out.close();
     }
+
 }

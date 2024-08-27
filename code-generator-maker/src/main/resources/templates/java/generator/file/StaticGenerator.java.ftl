@@ -1,4 +1,4 @@
-package com.aixming.generator;
+package ${basePackage}.generator;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
@@ -10,8 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * @author Duzeming
- * @since 2024-08-21 16:13:48
+ * @author ${author}
  */
 public class StaticGenerator {
 
