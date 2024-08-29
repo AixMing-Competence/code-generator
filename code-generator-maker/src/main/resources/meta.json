@@ -1,13 +1,14 @@
 {
-  "name": "acm-template-pro",
+  "name": "acm-template-pro-generator",
   "description": "算法模板",
   "basePackage": "com.aixming",
   "version": "1.0",
   "author": "AixMing",
-  "createTime": "2023-11-22",
+  "createTime": "2024年8月29日10:45:05",
   "fileConfig": {
-    "inputRootPath": "D:/IdeaProjects/code-generator/acm-template-pro",
+    "inputRootPath": ".source/acm-template-pro",
     "outputRootPath": "generated",
+    "sourceRootPath": "D:/IdeaProjects/code-generator/acm-template-pro",
     "type": "dir",
     "files": [
       {
