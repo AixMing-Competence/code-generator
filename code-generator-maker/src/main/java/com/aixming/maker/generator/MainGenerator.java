@@ -87,6 +87,11 @@ public class MainGenerator {
         inputPath = resourcesAbsolutePath + File.separator + "templates/pom.xml.ftl";
         outputFilePath = outputRootPath + File.separator + "pom.xml";
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
+        
+        // README.md
+        inputPath = resourcesAbsolutePath + File.separator + "templates/README.md.ftl";
+        outputFilePath = outputRootPath + File.separator + "README.md";
+        DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
 
         // 构建 jar 包
         JarGenerator.doGenerate(outputRootPath);

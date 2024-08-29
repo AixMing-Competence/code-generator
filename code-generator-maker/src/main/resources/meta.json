@@ -1,6 +1,6 @@
 {
   "name": "acm-template-pro-generator",
-  "description": "算法模板",
+  "description": "算法模板生成器",
   "basePackage": "com.aixming",
   "version": "1.0",
   "author": "AixMing",
