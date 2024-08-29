@@ -24,11 +24,11 @@ public class MainGenerator {
         if (!FileUtil.exist(outputRootPath)) {
             FileUtil.mkdir(outputRootPath);
         }
-        
+
         // 将代码模板先复制到本地（可移植）
         String sourceRootPath = meta.getFileConfig().getSourceRootPath();
         String sourceCopyDestPath = outputRootPath + File.separator + ".source";
-        FileUtil.copy(sourceRootPath,sourceCopyDestPath,false);
+        FileUtil.copy(sourceRootPath, sourceCopyDestPath, false);
 
         // 读取resources文件
         ClassPathResource resourcesPath = new ClassPathResource("");
@@ -36,7 +36,7 @@ public class MainGenerator {
 
         // java基础包路径
         String basePackage = String.join("/", meta.getBasePackage().split("\\."));
-        String outputWithBasePackagePath = outputRootPath + File.separator+ "src/main/java"+ File.separator + basePackage;
+        String outputWithBasePackagePath = outputRootPath + File.separator + "src/main/java" + File.separator + basePackage;
 
         // model.dataModel
         String inputPath = resourcesAbsolutePath + File.separator + "templates/java/model/DataModel.java.ftl";
@@ -87,7 +87,7 @@ public class MainGenerator {
         inputPath = resourcesAbsolutePath + File.separator + "templates/pom.xml.ftl";
         outputFilePath = outputRootPath + File.separator + "pom.xml";
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
-        
+
         // README.md
         inputPath = resourcesAbsolutePath + File.separator + "templates/README.md.ftl";
         outputFilePath = outputRootPath + File.separator + "README.md";
@@ -100,6 +100,26 @@ public class MainGenerator {
         // target/code-generator-basic-1.0-SNAPSHOT-jar-with-dependencies.jar
         String jarName = String.format("%s-%s-jar-with-dependencies.jar", meta.getName(), meta.getVersion());
         String jarPath = "target" + File.separator + jarName;
-        ScriptGenerator.doGenerate(outputRootPath + File.separator + "generator", jarPath);
+        String shellFilePath = outputRootPath + File.separator + "generator";
+        ScriptGenerator.doGenerate(shellFilePath, jarPath);
+
+        // 生成精简版程序（产物包）
+        // 1. 先复制再删除（影响性能）
+        // 2. 直接复制所需要的文件
+
+        // 复制 jar 包
+        String distOutputPath = outputRootPath + "-dist";
+        String jarCopyPath = outputRootPath + File.separator + jarPath;
+        String targetCopyPath = distOutputPath + File.separator + "target";
+        FileUtil.mkdir(targetCopyPath);
+        FileUtil.copy(jarCopyPath, targetCopyPath, true);
+
+        // 复制模板
+        FileUtil.copy(outputRootPath+File.separator+".source",distOutputPath,true);
+
+        // 复制脚本
+        FileUtil.copy(shellFilePath,distOutputPath,true);
+        FileUtil.copy(shellFilePath+".bat",distOutputPath,true);
+        
     }
 }
