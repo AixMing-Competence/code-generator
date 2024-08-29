@@ -35,7 +35,7 @@ public class MainGenerator {
             
         <#else>
         StaticGenerator.copyFilesByHutool(inputPath, outputPath);
-            
+        
         </#if>
 </#list>
     }

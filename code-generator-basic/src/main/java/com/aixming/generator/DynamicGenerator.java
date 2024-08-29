@@ -1,5 +1,6 @@
 package com.aixming.generator;
 
+import cn.hutool.core.io.FileUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -25,6 +26,10 @@ public class DynamicGenerator {
         configuration.setNumberFormat("0.######");
 
         Template template = configuration.getTemplate(inputFile.getName());
+        
+        if(!FileUtil.exist(outputPath)){
+            FileUtil.touch(outputPath);
+        }
 
         // 文件输出位置
         FileWriter out = new FileWriter(outputPath, StandardCharsets.UTF_8);

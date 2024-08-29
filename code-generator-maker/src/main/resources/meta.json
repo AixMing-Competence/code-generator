@@ -1,18 +1,18 @@
 {
-  "name": "code-generator",
-  "description": "个性化代码生成器",
+  "name": "acm-template-pro",
+  "description": "算法模板",
   "basePackage": "com.aixming",
   "version": "1.0",
   "author": "AixMing",
   "createTime": "2023-11-22",
   "fileConfig": {
-    "inputRootPath": "D:\\\\IdeaProjects\\\\code-generator\\\\code-generator-maker",
+    "inputRootPath": "D:/IdeaProjects/code-generator/acm-template-pro",
     "outputRootPath": "generated",
     "type": "dir",
     "files": [
       {
-        "inputPath": "src/com/aixming/acm/MainTemplate.java.ftl",
-        "outputPath": "src/com/aixming/acm/MainTemplate.java",
+        "inputPath": "src/main/java/com/aixming/MainTemplate.java.ftl",
+        "outputPath": "src/main/java/com/aixming/MainTemplate.java",
         "type": "file",
         "generateType": "dynamic"
       },

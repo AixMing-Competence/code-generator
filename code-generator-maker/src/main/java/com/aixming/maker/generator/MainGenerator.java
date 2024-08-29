@@ -15,7 +15,7 @@ import java.io.IOException;
  * @since 2024-08-27 09:22:49
  */
 public class MainGenerator {
-    public static void main(String[] args) throws TemplateException, IOException {
+    public static void main(String[] args) throws TemplateException, IOException, InterruptedException {
         Meta meta = MetaManager.getMetaObject();
 
         // 获取输出路径
@@ -48,7 +48,7 @@ public class MainGenerator {
 
         // cli.command.configCommand
         inputPath = resourcesAbsolutePath + File.separator + "templates/java/cli/command/ConfigCommand.java.ftl";
-        outputFilePath = outputPath + File.separator + "cli/command/ConfigCommand.java";
+        outputFilePath = outputPath + File.separator + "cli/command/ConfigCommand.java.";
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
 
         // cli.CommandExecutor
@@ -61,19 +61,33 @@ public class MainGenerator {
         outputFilePath = outputPath + File.separator + "Main.java";
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
 
-        // generator.file.DynamicGenerator
-        inputPath = resourcesAbsolutePath + File.separator + "templates/java/generator/file/DynamicGenerator.java.ftl";
+        // generator.DynamicGenerator
+        inputPath = resourcesAbsolutePath + File.separator + "templates/java/generator/DynamicGenerator.java.ftl";
         outputFilePath = outputPath + File.separator + "generator/DynamicGenerator.java";
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
 
-        // generator.file.StaticFileGenerator
-        inputPath = resourcesAbsolutePath + File.separator + "templates/java/generator/file/StaticGenerator.java.ftl";
+        // generator.StaticFileGenerator
+        inputPath = resourcesAbsolutePath + File.separator + "templates/java/generator/StaticGenerator.java.ftl";
         outputFilePath = outputPath + File.separator + "generator/StaticGenerator.java";
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
 
-        // generator.file.MainGenerator
+        // generator.MainGenerator
         inputPath = resourcesAbsolutePath + File.separator + "templates/java/generator/MainGenerator.java.ftl";
         outputFilePath = outputPath + File.separator + "generator/MainGenerator.java";
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
+
+        // pom.xml
+        inputPath = resourcesAbsolutePath + File.separator + "templates/pom.xml.ftl";
+        outputFilePath = projectPath + File.separator + "generated/pom.xml";
+        DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
+
+        // 构建 jar 包
+        JarGenerator.doGenerate(projectPath + File.separator + "generated");
+
+        // 封装脚本
+        // target/code-generator-basic-1.0-SNAPSHOT-jar-with-dependencies.jar
+        String jarName = String.format("%s-%s-jar-with-dependencies.jar", meta.getName(), meta.getVersion());
+        String jarPath = "target" + File.separator + jarName;
+        ScriptGenerator.doGenerate(projectPath + File.separator + "generated/generator", jarPath);
     }
 }
