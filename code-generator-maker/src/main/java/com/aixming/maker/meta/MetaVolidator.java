@@ -4,6 +4,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.aixming.maker.enums.FileGenerateTypeEnum;
+import com.aixming.maker.enums.FileTypeEnum;
+import com.aixming.maker.enums.ModelTypeEnum;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -41,7 +44,7 @@ public class MetaVolidator {
             }
             String type = modelInfo.getType();
             if (StrUtil.isBlank(type)) {
-                modelInfo.setType("String");
+                modelInfo.setType(ModelTypeEnum.STRING.getValue());
             }
         }
     }
@@ -72,7 +75,7 @@ public class MetaVolidator {
 
         String type = fileConfig.getType();
         if (StrUtil.isEmpty(type)) {
-            fileConfig.setType("dir");
+            fileConfig.setType(FileTypeEnum.DIR.getValue());
         }
 
         List<Meta.FileConfig.FileInfo> files = fileConfig.getFiles();
@@ -99,18 +102,18 @@ public class MetaVolidator {
             String fileType = fileInfo.getType();
             // 没有后缀为目录，有后缀为文件
             if (StrUtil.isBlank(FileUtil.getSuffix(inputPath))) {
-                fileInfo.setType("dir");
+                fileInfo.setType(FileTypeEnum.DIR.getValue());
             } else {
-                fileInfo.setType("file");
+                fileInfo.setType(FileTypeEnum.FILE.getValue());
             }
 
             // 模板动态生成，文件静态生成
             String generateType = fileInfo.getGenerateType();
             if (StrUtil.isBlank(generateType)) {
                 if (inputPath.endsWith("ftl")) {
-                    fileInfo.setGenerateType("dynamic");
+                    fileInfo.setGenerateType(FileGenerateTypeEnum.DYNAMIC.getValue());
                 } else {
-                    fileInfo.setGenerateType("static");
+                    fileInfo.setGenerateType(FileGenerateTypeEnum.STATIC.getValue());
                 }
             }
         }

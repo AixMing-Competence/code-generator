@@ -1,4 +1,8 @@
 {
+  "name": "acm-template-pro-generator",
+  "description": "算法模板生成器",
+  "basePackage": "com.aixming",
+  "version": "1.0",
   "author": "AixMing",
   "createTime": "2024年8月29日10:45:05",
   "fileConfig": {
