@@ -83,6 +83,11 @@ public class MetaVolidator {
             return;
         }
         for (Meta.FileConfig.FileInfo fileInfo : files) {
+            String fileType = fileInfo.getType();
+            if (FileTypeEnum.GROUP.getValue().equals(fileType)) {
+                continue;
+            }
+            
             // inputPath 必填项
             String inputPath = fileInfo.getInputPath();
             if (StrUtil.isBlank(inputPath)) {
@@ -99,7 +104,6 @@ public class MetaVolidator {
                 }
             }
 
-            String fileType = fileInfo.getType();
             // 没有后缀为目录，有后缀为文件
             if (StrUtil.isBlank(FileUtil.getSuffix(inputPath))) {
                 fileInfo.setType(FileTypeEnum.DIR.getValue());
