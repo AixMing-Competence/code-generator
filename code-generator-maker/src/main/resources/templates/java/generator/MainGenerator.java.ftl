@@ -1,5 +1,6 @@
 package ${basePackage}.generator;
 
+import ${basePackage}.model.DataModel;
 import freemarker.template.TemplateException;
 
 import java.io.File;
@@ -19,7 +20,7 @@ public class MainGenerator {
      * @throws TemplateException
      * @throws IOException
      */
-    public static void doGenerate(Object modelData) throws TemplateException, IOException {
+    public static void doGenerate(DataModel modelData) throws TemplateException, IOException {
 
         String inputRootPath = "${fileConfig.inputRootPath}";
         String outputRootPath = "${fileConfig.outputRootPath}";
@@ -27,16 +28,31 @@ public class MainGenerator {
         String inputPath;
         String outputPath;
 
+<#list modelConfig.models as modelInfo>
+        ${modelInfo.type} ${modelInfo.fieldName} = modelData.${modelInfo.fieldName};
+</#list>
+
 <#list fileConfig.files as fileInfo>
+        <#if fileInfo.condition??>
+        if (${fileInfo.condition}) {
+            inputPath = new File(inputRootPath, "${fileInfo.inputPath}").getAbsolutePath();
+            outputPath = new File(outputRootPath, "${fileInfo.outputPath}").getAbsolutePath();
+            <#if fileInfo.generateType == "dynamic">
+            DynamicGenerator.doGenerator(inputPath, outputPath, modelData);
+            <#else>
+            StaticGenerator.copyFilesByHutool(inputPath, outputPath);
+            </#if>
+        }
+        <#else>
         inputPath = new File(inputRootPath, "${fileInfo.inputPath}").getAbsolutePath();
         outputPath = new File(outputRootPath, "${fileInfo.outputPath}").getAbsolutePath();
         <#if fileInfo.generateType == "dynamic">
         DynamicGenerator.doGenerator(inputPath, outputPath, modelData);
-            
         <#else>
         StaticGenerator.copyFilesByHutool(inputPath, outputPath);
-        
         </#if>
+        </#if>
+    
 </#list>
     }
 

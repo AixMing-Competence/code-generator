@@ -2,6 +2,7 @@ package com.aixming.maker.meta;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  * @author AixMing
  * @since 2024-08-26 21:07:48
  */
+@Accessors(fluent = false)
 @NoArgsConstructor
 @Data
 public class Meta {
@@ -38,6 +40,7 @@ public class Meta {
             private String outputPath;
             private String type;
             private String generateType;
+            private String condition;
         }
     }
 
