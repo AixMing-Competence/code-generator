@@ -136,15 +136,15 @@ public abstract class GenerateTemplate {
         DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
 
         // README.md
-        inputPath = resourcesAbsolutePath + File.separator + "templates/README.md.ftl";
-        outputFilePath = outputRootPath + File.separator + "README.md";
-        DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
+        // inputPath = resourcesAbsolutePath + File.separator + "templates/README.md.ftl";
+        // outputFilePath = outputRootPath + File.separator + "README.md";
+        // DynamicFileGenerator.doGenerator(inputPath, outputFilePath, meta);
     }
 
     protected void copySource(Meta meta, String outputRootPath) {
         // 将代码模板先复制到本地（可移植）
         String sourceRootPath = meta.getFileConfig().getSourceRootPath();
         String sourceCopyDestPath = outputRootPath + File.separator + ".source";
-        FileUtil.copy(sourceRootPath, sourceCopyDestPath, false);
+        FileUtil.copy(sourceRootPath, sourceCopyDestPath, true);
     }
 }

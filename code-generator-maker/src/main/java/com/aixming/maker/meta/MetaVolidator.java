@@ -11,6 +11,7 @@ import com.aixming.maker.enums.ModelTypeEnum;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 元信息校验器
@@ -24,7 +25,6 @@ public class MetaVolidator {
         validAndFillMetaRoot(meta);
         validAndFillFileConfig(meta);
         validAndFillModelConfig(meta);
-
     }
 
     private static void validAndFillModelConfig(Meta meta) {
@@ -38,6 +38,15 @@ public class MetaVolidator {
             return;
         }
         for (Meta.ModelConfig.ModelInfo modelInfo : modelInfoList) {
+            // 为 group，不校验
+            if (StrUtil.isNotEmpty(modelInfo.getGroupKey())) {
+                // 生成中间参数
+                String allArgsStr = modelInfo.getModels().stream()
+                        .map(subModelInfo -> String.format("\"--%s\"", subModelInfo.getFieldName()))
+                        .collect(Collectors.joining(", "));
+                modelInfo.setAllArgsStr(allArgsStr);
+                continue;
+            }
             String fieldName = modelInfo.getFieldName();
             if (StrUtil.isBlank(fieldName)) {
                 throw new MetaException("fieldName 是必填项");
@@ -87,7 +96,7 @@ public class MetaVolidator {
             if (FileTypeEnum.GROUP.getValue().equals(fileType)) {
                 continue;
             }
-            
+
             // inputPath 必填项
             String inputPath = fileInfo.getInputPath();
             if (StrUtil.isBlank(inputPath)) {
