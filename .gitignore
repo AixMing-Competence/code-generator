@@ -3,6 +3,7 @@
 generated
 code-generator.iml
 code-generator-basic.iml
+.temp
 
 ### Java template
 # Compiled class file
