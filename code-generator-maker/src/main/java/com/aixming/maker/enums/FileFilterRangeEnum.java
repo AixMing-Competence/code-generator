@@ -3,33 +3,30 @@ package com.aixming.maker.enums;
 import cn.hutool.core.util.ObjectUtil;
 
 /**
- * 文件过滤规则枚举
+ * 文件过滤范围枚举
  *
  * @author AixMing
  * @since 2024-08-30 20:50:22
  */
-public enum FileFilterRuleEnum {
+public enum FileFilterRangeEnum {
 
-    CONTAINS("包含", "contains"),
-    STARTSWITH("前缀匹配", "startswith"),
-    ENDSWITH("后缀匹配", "endswith"),
-    REGEX("正则", "regex"),
-    EQUALS("相等", "equals");
+    FILE_NAME("文件名称", "fileName"),
+    FILE_CONTENT("文件内容", "fileContent");
 
     private final String text;
 
     private final String value;
 
-    FileFilterRuleEnum(String text, String value) {
+    FileFilterRangeEnum(String text, String value) {
         this.text = text;
         this.value = value;
     }
 
-    public static FileFilterRuleEnum getEnumByValue(String value) {
+    public static FileFilterRangeEnum getEnumByValue(String value) {
         if (ObjectUtil.isEmpty(value)) {
             return null;
         }
-        for (FileFilterRuleEnum anEnum : FileFilterRuleEnum.values()) {
+        for (FileFilterRangeEnum anEnum : FileFilterRangeEnum.values()) {
             if (anEnum.value.equals(value)) {
                 return anEnum;
             }
