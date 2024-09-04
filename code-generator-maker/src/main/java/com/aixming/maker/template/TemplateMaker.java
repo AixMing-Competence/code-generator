@@ -11,6 +11,7 @@ import com.aixming.maker.meta.Meta;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,17 @@ import java.util.stream.Collectors;
  */
 public class TemplateMaker {
 
-    private static long makeTemplate(String originProjectPath, String inputFilePath, Meta newMeta, Meta.ModelConfig.ModelInfo modelInfo, String searchStr, Long id) {
+    /**
+     * 制作模板
+     * @param originProjectPath
+     * @param inputFilePathList
+     * @param newMeta
+     * @param modelInfo
+     * @param searchStr
+     * @param id 区别状态
+     * @return
+     */
+    private static long makeTemplate(String originProjectPath, List<String> inputFilePathList, Meta newMeta, Meta.ModelConfig.ModelInfo modelInfo, String searchStr, Long id) {
         if (id == null) {
             id = IdUtil.getSnowflakeNextId();
         }
@@ -43,19 +54,22 @@ public class TemplateMaker {
         // 要挖坑的项目根目录
         String sourceRootPath = templatePath + File.separator + FileUtil.getLastPathEle(Paths.get(originProjectPath));
         sourceRootPath = sourceRootPath.replaceAll("\\\\", "/");
-        // 制作文件模板
-        File inputFile = new File(sourceRootPath + File.separator + inputFilePath);
+        
         ArrayList<Meta.FileConfig.FileInfo> newFileInfoList = new ArrayList<>();
-        if (inputFile.isDirectory()) {
-            for (File file : FileUtil.loopFiles(inputFile)) {
-                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, sourceRootPath, file);
+        for (String inputFilePath : inputFilePathList) {
+            // 制作文件模板
+            File inputFile = new File(sourceRootPath + File.separator + inputFilePath);
+            if (inputFile.isDirectory()) {
+                for (File file : FileUtil.loopFiles(inputFile)) {
+                    Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, sourceRootPath, file);
+                    newFileInfoList.add(fileInfo);
+                }
+            } else {
+                Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, sourceRootPath, inputFile);
                 newFileInfoList.add(fileInfo);
             }
-        } else {
-            Meta.FileConfig.FileInfo fileInfo = makeFileTemplate(modelInfo, searchStr, sourceRootPath, inputFile);
-            newFileInfoList.add(fileInfo);
         }
-
+        
         // 三、生成配置文件（meta.json）
         String metaOutputPath = sourceRootPath + File.separator + "meta.json";
 
@@ -183,8 +197,11 @@ public class TemplateMaker {
         Meta meta = new Meta();
         meta.setName(name);
         meta.setDescription(description);
-        String inputFilePath = "src/main/java/com/aixming/springbootinit";
-
+        
+        String inputFilePath1 = "src/main/java/com/aixming/springbootinit/controller";
+        String inputFilePath2 = "src/main/java/com/aixming/springbootinit/common";
+        List<String> inputFilePathList = Arrays.asList(inputFilePath1, inputFilePath2);
+        
         // 第一次挖坑
         // Meta.ModelConfig.ModelInfo modelInfo = new Meta.ModelConfig.ModelInfo();
         // modelInfo.setFieldName("outputText");
@@ -198,7 +215,7 @@ public class TemplateMaker {
 
         // String searchStr = "sum";
         String searchStr = "BaseResponse";
-        long id = makeTemplate(originProjectPath, inputFilePath, meta, modelInfo, searchStr, null);
+        long id = makeTemplate(originProjectPath, inputFilePathList, meta, modelInfo, searchStr, null);
         System.out.println(id);
 
     }
