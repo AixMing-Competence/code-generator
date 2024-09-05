@@ -1,4 +1,4 @@
-package com.aixming.maker.enums;
+package com.aixming.maker.template.enums;
 
 import cn.hutool.core.util.ObjectUtil;
 

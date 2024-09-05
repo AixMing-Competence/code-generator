@@ -1,6 +1,7 @@
 package com.aixming.maker.template.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -15,12 +16,14 @@ public class TemplateMakerFileConfig {
     
     private FileGroupConfig fileGroupConfig;
 
+    @NoArgsConstructor
     @Data
     public static class FileInfoConfig {
         private String path;
         private List<FileFilterConfig> filterConfigList;
     }
 
+    @NoArgsConstructor
     @Data
     public static class FileGroupConfig {
         private String condition;

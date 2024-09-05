@@ -2,8 +2,8 @@ package com.aixming.maker.template;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import com.aixming.maker.enums.FileFilterRangeEnum;
-import com.aixming.maker.enums.FileFilterRuleEnum;
+import com.aixming.maker.template.enums.FileFilterRangeEnum;
+import com.aixming.maker.template.enums.FileFilterRuleEnum;
 import com.aixming.maker.template.model.FileFilterConfig;
 
 import java.io.File;
