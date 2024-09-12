@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "name": "springboot-init-generator",
+    "description": "spring boot 项目模板生成器"
+  },
+  "originProjectPath": "../../../springboot-init",
+  "templateMakerFileConfig": {
+    "files": [
+      {
+        "path": "src/main/java/com/aixming/springbootinit/common"
+      }
+    ]
+  },
+  "templateMakerModelConfig": {
+    "models": [
+      {
+        "fieldName": "className",
+        "type": "String",
+        "defaultValue": "BaseResponse",
+        "replaceText": "BaseResponse"
+      }
+    ]
+  }
+}

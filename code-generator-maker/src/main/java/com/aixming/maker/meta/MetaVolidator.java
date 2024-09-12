@@ -8,7 +8,6 @@ import com.aixming.maker.enums.FileGenerateTypeEnum;
 import com.aixming.maker.enums.FileTypeEnum;
 import com.aixming.maker.enums.ModelTypeEnum;
 
-import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,15 +69,15 @@ public class MetaVolidator {
         }
 
         String inputRootPath = fileConfig.getInputRootPath();
+        String projectName = FileUtil.getLastPathEle(Paths.get(sourceRootPath)).getFileName().toString();
         if (StrUtil.isEmpty(inputRootPath)) {
-            inputRootPath = ".source" + File.separator +
-                    FileUtil.getLastPathEle(Paths.get(sourceRootPath)).getFileName().toString();
+            inputRootPath = ".source/" + projectName;
             fileConfig.setInputRootPath(inputRootPath);
         }
 
         String outputRootPath = fileConfig.getOutputRootPath();
         if (StrUtil.isEmpty(outputRootPath)) {
-            outputRootPath = "generated";
+            outputRootPath = "generated/" + projectName;
             fileConfig.setOutputRootPath(outputRootPath);
         }
 
@@ -92,8 +91,7 @@ public class MetaVolidator {
             return;
         }
         for (Meta.FileConfig.FileInfo fileInfo : files) {
-            String fileType = fileInfo.getType();
-            if (FileTypeEnum.GROUP.getValue().equals(fileType)) {
+            if (StrUtil.isNotBlank(fileInfo.getGroupKey())) {
                 continue;
             }
 

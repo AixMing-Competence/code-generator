@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 public class ConfigCommand implements Runnable {
     @Override
     public void run() {
+        System.out.println("查看参数信息");
         Field[] fields = ReflectUtil.getFields(DataModel.class);
         for (Field field : fields) {
             System.out.println("字段类型：" + field.getType());

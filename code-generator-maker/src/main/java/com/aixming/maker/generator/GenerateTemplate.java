@@ -145,6 +145,6 @@ public abstract class GenerateTemplate {
         // 将代码模板先复制到本地（可移植）
         String sourceRootPath = meta.getFileConfig().getSourceRootPath();
         String sourceCopyDestPath = outputRootPath + File.separator + ".source";
-        FileUtil.copy(sourceRootPath, sourceCopyDestPath, true);
+        FileUtil.copy(sourceRootPath, sourceCopyDestPath, false);
     }
 }

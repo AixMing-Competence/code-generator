@@ -49,23 +49,22 @@ public class MainGenerator {
 </#list>
 
 <#list fileConfig.files as fileInfo>
+        <#if fileInfo.condition??>
         <#if fileInfo.groupKey??>
         // groupKey = ${fileInfo.groupKey}
-        <#if fileInfo.condition??>
         if (${fileInfo.condition}) {
-            <#list fileInfo.files as fileInfo>
+        <#list fileInfo.files as fileInfo>
             <@generateFile fileInfo=fileInfo indent="            " />
 
-            </#list>
+        </#list>
         }
         <#else>
-        <#list fileInfo.files as fileInfo>
-        <@generateFile fileInfo=fileInfo indent="        " />
-
-        </#list>
+        if (${fileInfo.condition}) {
+            <@generateFile fileInfo=fileInfo indent="            " />
+        }
         </#if>
         <#else>
-        <@generateFile fileInfo=fileInfo indent="        " />
+            <@generateFile fileInfo=fileInfo indent="        " />
         </#if>
 
 </#list>
