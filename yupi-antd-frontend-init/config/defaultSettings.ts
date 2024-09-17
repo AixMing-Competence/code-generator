@@ -10,12 +10,12 @@ const Settings: ProLayoutProps & {
   navTheme: 'light',
   // 拂晓蓝
   colorPrimary: '#1890ff',
-  layout: 'mix',
+  layout: 'top',
   contentWidth: 'Fluid',
   fixedHeader: false,
-  fixSiderbar: true,
+  fixSiderbar: false,
   colorWeak: false,
-  title: '鱼皮前端万用模板',
+  title: '前端万用模板',
   pwa: true,
   iconfontUrl: '',
   token: {

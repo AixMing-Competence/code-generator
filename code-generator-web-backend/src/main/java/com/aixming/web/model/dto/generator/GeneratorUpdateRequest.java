@@ -1,5 +1,6 @@
 package com.aixming.web.model.dto.generator;
 
+import com.aixming.web.meta.Meta;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -56,12 +57,12 @@ public class GeneratorUpdateRequest implements Serializable {
     /**
      * 文件配置（json 字符串）
      */
-    private String fileConfig;
+    private Meta.FileConfig fileConfig;
 
     /**
      * 模型配置（json 字符串）
      */
-    private String modelConfig;
+    private Meta.ModelConfig modelConfig;
 
     /**
      * 代码生成器产物路径
