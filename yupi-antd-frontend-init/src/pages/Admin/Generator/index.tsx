@@ -6,7 +6,7 @@ import {
 } from '@/services/backend/generatorController';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { PageContainer, ProTable } from '@ant-design/pro-components';
+import { ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
 import { Button, message, Select, Space, Tag, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
@@ -178,7 +178,9 @@ const GeneratorAdminPage: React.FC = () => {
   ];
   return (
     <div className="generator-admin-page">
-      <Typography.Title level={4} style={{marginBottom: 24}}>生成器管理</Typography.Title>
+      <Typography.Title level={4} style={{ marginBottom: 24 }}>
+        生成器管理
+      </Typography.Title>
       <ProTable<API.Generator>
         headerTitle={'查询表格'}
         actionRef={actionRef}

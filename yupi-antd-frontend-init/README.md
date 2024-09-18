@@ -1,4 +1,4 @@
-# 前端万用模板
+# 极简代码生成
 
 > 作者：[AixMing](https://github.com/AixMing-Competence)
 > 仅分享于 [github](https://yupi.icu)
