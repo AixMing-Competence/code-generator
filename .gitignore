@@ -4,6 +4,7 @@ generated
 code-generator.iml
 code-generator-basic.iml
 .temp
+application-local.yml
 
 ### Java template
 # Compiled class file

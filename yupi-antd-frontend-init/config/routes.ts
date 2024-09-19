@@ -7,7 +7,14 @@ export default [
       { path: '/user/register', component: './User/Register' },
     ],
   },
-  { path: '/', icon: 'smile', component: './Index', name: '首页' },
+  { path: '/', icon: 'homeOutlined', component: './Index', name: '首页' },
+  {
+    path: '/test/file',
+    icon: 'home',
+    component: './Test/File',
+    name: '文件上传下载测试',
+    hideInMenu: true,
+  },
   {
     path: '/admin',
     icon: 'crown',
