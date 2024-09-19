@@ -7,8 +7,9 @@ package com.aixming.maker.generator;
 public class MainGenerator extends GenerateTemplate{
 
     @Override
-    protected void buildDist(String outputRootPath, String jarPath, String shellFilePath) {
+    protected String buildDist(String outputRootPath, String jarPath, String shellFilePath) {
         System.out.println("不要给我生成 dist");
+        return "";
     }
     
 }
