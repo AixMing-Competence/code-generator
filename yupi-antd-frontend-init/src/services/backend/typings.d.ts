@@ -69,7 +69,7 @@ declare namespace API {
     id?: number;
   };
 
-  type downloadByIdUsingGETParams = {
+  type downloadGeneratorByIdUsingGETParams = {
     /** id */
     id?: number;
   };

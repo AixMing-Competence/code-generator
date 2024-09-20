@@ -258,7 +258,7 @@ public class GeneratorController {
     // endregion
 
     @GetMapping("/download")
-    public void downloadById(long id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void downloadGeneratorById(long id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         // 判断用户是否登录，未登录会直接抛出异常
         User loginUser = userService.getLoginUser(request);
@@ -279,7 +279,7 @@ public class GeneratorController {
             cosObjectInputStream = cosobject.getObjectContent();
 
             byte[] bytes = IOUtils.toByteArray(cosObjectInputStream);
-            response.setContentType("application/octet-stream");
+            response.setContentType("application/octet-stream;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
 
             response.getOutputStream().write(bytes);

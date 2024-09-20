@@ -1,14 +1,20 @@
+import { COS_HOST } from '@/constants';
 import AuthorInfo from '@/pages/Generator/Detail/components/AuthorInfo';
 import FileConfig from '@/pages/Generator/Detail/components/FileConfig';
 import ModelConfig from '@/pages/Generator/Detail/components/ModelConfig';
-import { getGeneratorVoByIdUsingGet } from '@/services/backend/generatorController';
+import {
+  downloadGeneratorByIdUsingGet,
+  getGeneratorVoByIdUsingGet,
+} from '@/services/backend/generatorController';
 import { useParams } from '@@/exports';
-import { DownloadOutlined } from '@ant-design/icons';
-import type { ProFormInstance } from '@ant-design/pro-components';
+import { DownloadOutlined, EditOutlined } from '@ant-design/icons';
 import { PageContainer, ProCard } from '@ant-design/pro-components';
+import { useModel } from '@umijs/max';
 import { Button, Col, Image, message, Row, Space, Tabs, Tag, Typography } from 'antd';
+import { saveAs } from 'file-saver';
 import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'umi';
 
 /**
  * 生成器详情页面
@@ -18,7 +24,9 @@ const GeneratorDetailPage: React.FC = () => {
   const { id } = useParams();
   const [data, setData] = useState<API.GeneratorVO>({});
   const [loading, setLoading] = useState<boolean>(false);
-  const formRef = useRef<ProFormInstance>();
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState ?? {};
+  const isMy = currentUser?.id === data.userId;
 
   /**
    * 标签列表
@@ -63,8 +71,36 @@ const GeneratorDetailPage: React.FC = () => {
     loadData();
   }, [id]);
 
+  /**
+   * 下载按钮
+   */
+  const downloadButton = data.distPath && currentUser && (
+    <Button
+      icon={<DownloadOutlined />}
+      onClick={async () => {
+        const blob = await downloadGeneratorByIdUsingGet(
+          { id: id as any },
+          { responseType: 'blob' },
+        );
+        const fullPath = COS_HOST + data.distPath;
+        saveAs(blob, fullPath.substring(fullPath.lastIndexOf('/') + 1));
+      }}
+    >
+      下载
+    </Button>
+  );
+
+  /**
+   * 编辑按钮
+   */
+  const editButton = isMy && (
+    <Link to={`/generator/update?id=${id}`}>
+      <Button icon={<EditOutlined />}>编辑</Button>
+    </Link>
+  );
+
   return (
-    <PageContainer title={<></>}>
+    <PageContainer title={<></>} loading={loading}>
       <ProCard>
         <Row justify="space-between" gutter={[32, 32]}>
           <Col flex="auto">
@@ -82,7 +118,8 @@ const GeneratorDetailPage: React.FC = () => {
             <div style={{ marginBottom: '24px' }}></div>
             <Space size="middle">
               <Button type="primary">立即使用</Button>
-              <Button icon={<DownloadOutlined />}>下载</Button>
+              {downloadButton}
+              {editButton}
             </Space>
           </Col>
           <Col flex="320px">

@@ -1,10 +1,9 @@
 import { listGeneratorVoByPageUsingPost } from '@/services/backend/generatorController';
 import { PageContainer, ProFormSelect, ProFormText, QueryFilter } from '@ant-design/pro-components';
+import { history } from '@umijs/max';
 import { Avatar, Card, Flex, Image, Input, List, message, Tabs, Tag, Typography } from 'antd';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import PictureUploader from "@/components/PictureUploader";
-import {USER_AVATAR} from "@/constants";
 
 /**
  * 初始化参数（不可改变）
@@ -150,7 +149,13 @@ const IndexPage: React.FC = () => {
         }}
         renderItem={(data) => (
           <List.Item>
-            <Card hoverable cover={<Image alt={data.name} src={data.picture} />}>
+            <Card
+              hoverable
+              cover={<Image alt={data.name} src={data.picture} />}
+              onClick={() => {
+                history.push(`/generator/detail/${data.id}`);
+              }}
+            >
               <Card.Meta
                 title={<a>{data.name}</a>}
                 description={

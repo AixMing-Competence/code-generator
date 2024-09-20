@@ -136,7 +136,7 @@ public class FileController {
             cosObjectInputStream = cosobject.getObjectContent();
 
             byte[] bytes = IOUtils.toByteArray(cosObjectInputStream);
-            response.setContentType("application/octet-stream");
+            response.setContentType("application/octet-stream;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
 
             response.getOutputStream().write(bytes);

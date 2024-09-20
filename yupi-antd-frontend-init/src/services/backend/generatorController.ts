@@ -32,10 +32,10 @@ export async function deleteGeneratorUsingPost(
   });
 }
 
-/** downloadById GET /api/generator/download */
-export async function downloadByIdUsingGet(
+/** downloadGeneratorById GET /api/generator/download */
+export async function downloadGeneratorByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.downloadByIdUsingGETParams,
+  params: API.downloadGeneratorByIdUsingGETParams,
   options?: { [key: string]: any },
 ) {
   return request<any>('/api/generator/download', {
