@@ -124,7 +124,7 @@ const GeneratorAddPage: React.FC = () => {
     if (id) {
       doUpdate({
         ...values,
-        id,
+        id: id as any,
       });
     } else {
       doAdd(values);
