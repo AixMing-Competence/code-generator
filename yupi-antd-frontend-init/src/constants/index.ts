@@ -12,3 +12,12 @@ export const BACKEND_HOST_PROD = 'https://yupi.icu';
  * COS 访问地址
  */
 export const COS_HOST = 'https://code-generator-1322694943.cos.ap-guangzhou.myqcloud.com';
+
+/**
+ * 文件上传业务类型枚举
+ */
+export const USER_AVATAR = 'user_avatar';
+
+export const GENERATOR_PICTURE = 'generator_picture';
+
+export const GENERATOR_DIST = 'generator_dist';

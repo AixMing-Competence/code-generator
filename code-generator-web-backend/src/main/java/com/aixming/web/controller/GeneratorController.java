@@ -1,7 +1,7 @@
 package com.aixming.web.controller;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.aixming.web.annotation.AuthCheck;
 import com.aixming.web.common.BaseResponse;
 import com.aixming.web.common.DeleteRequest;
@@ -10,6 +10,7 @@ import com.aixming.web.common.ResultUtils;
 import com.aixming.web.constant.UserConstant;
 import com.aixming.web.exception.BusinessException;
 import com.aixming.web.exception.ThrowUtils;
+import com.aixming.web.manager.CosManager;
 import com.aixming.web.model.dto.generator.GeneratorAddRequest;
 import com.aixming.web.model.dto.generator.GeneratorEditRequest;
 import com.aixming.web.model.dto.generator.GeneratorQueryRequest;
@@ -19,12 +20,18 @@ import com.aixming.web.model.entity.User;
 import com.aixming.web.model.vo.GeneratorVO;
 import com.aixming.web.service.GeneratorService;
 import com.aixming.web.service.UserService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.qcloud.cos.model.COSObject;
+import com.qcloud.cos.model.COSObjectInputStream;
+import com.qcloud.cos.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 代码生成器接口
@@ -41,6 +48,9 @@ public class GeneratorController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private CosManager cosManager;
 
     // region 增删改查
 
@@ -246,4 +256,42 @@ public class GeneratorController {
     }
 
     // endregion
+
+    @GetMapping("/download")
+    public void downloadById(long id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        // 判断用户是否登录，未登录会直接抛出异常
+        User loginUser = userService.getLoginUser(request);
+
+        Generator generator = generatorService.getById(id);
+        ThrowUtils.throwIf(generator == null, ErrorCode.NOT_FOUND_ERROR);
+
+        String filePath = generator.getDistPath();
+        ThrowUtils.throwIf(StrUtil.isBlank(filePath), ErrorCode.NOT_FOUND_ERROR, "文件不存在");
+
+        // 追踪事件
+        log.info("用户 {} 下载了 {}", loginUser, filePath);
+
+        // 下载
+        COSObjectInputStream cosObjectInputStream = null;
+        try {
+            COSObject cosobject = cosManager.getObject(filePath);
+            cosObjectInputStream = cosobject.getObjectContent();
+
+            byte[] bytes = IOUtils.toByteArray(cosObjectInputStream);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
+
+            response.getOutputStream().write(bytes);
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("file download error, filepath = " + filePath, e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载失败");
+        } finally {
+            if (cosObjectInputStream != null) {
+                cosObjectInputStream.close();
+            }
+        }
+    }
+
 }

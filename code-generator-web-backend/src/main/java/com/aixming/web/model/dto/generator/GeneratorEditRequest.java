@@ -4,6 +4,7 @@ import com.aixming.web.meta.Meta;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 编辑代码生成器请求（用户编辑）
@@ -51,7 +52,7 @@ public class GeneratorEditRequest implements Serializable {
     /**
      * 标签（json 数组）
      */
-    private String tags;
+    private List<String> tags;
 
     /**
      * 文件配置（json 字符串）

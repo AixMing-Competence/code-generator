@@ -31,7 +31,7 @@ export const requestConfig: RequestConfig = {
 
   // 响应拦截器
   responseInterceptors: [
-    (response) => {
+    (response: any) => {
       // 请求地址
       const requestPath: string = response.config.url ?? '';
 
@@ -42,7 +42,7 @@ export const requestConfig: RequestConfig = {
       }
 
       // 如果是 download 请求，不处理
-      if(requestPath.includes("download")){
+      if (requestPath.includes('download')) {
         return response;
       }
 
