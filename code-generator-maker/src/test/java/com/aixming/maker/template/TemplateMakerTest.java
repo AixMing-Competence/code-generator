@@ -1,6 +1,5 @@
 package com.aixming.maker.template;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.json.JSONUtil;
 import com.aixming.maker.meta.Meta;
@@ -148,15 +147,5 @@ public class TemplateMakerTest {
         templateMakerConfig = JSONUtil.toBean(configStr, TemplateMakerConfig.class);
         TemplateMaker.makerTemplate(templateMakerConfig);
         System.out.println(id);
-    }
-
-    @Override
-    public void run() {
-        System.out.println("查看文件列表");
-        String inputRootPath = System.getProperty("${fileConfig.inputRootPath}");
-        File inputRootFilePath = new File(inputRootPath);
-        for (File file : FileUtil.loopFiles(inputRootFilePath)) {
-            System.out.println(file);
-        }
     }
 }
