@@ -228,12 +228,6 @@
                 "generateType": "static"
             },
             {
-                "inputPath": ".idea/encodings.xml",
-                "outputPath": ".idea/encodings.xml",
-                "type": "file",
-                "generateType": "static"
-            },
-            {
                 "inputPath": "src/main/java/com/aixming/springbootinit/config/CosClientConfig.java.ftl",
                 "outputPath": "src/main/java/com/aixming/springbootinit/config/CosClientConfig.java",
                 "type": "file",
