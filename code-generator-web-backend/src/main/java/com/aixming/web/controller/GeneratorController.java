@@ -37,6 +37,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 代码生成器接口
@@ -350,10 +351,11 @@ public class GeneratorController {
         FileUtil.writeUtf8String(jsonStr, dataModelFilePath);
 
         // 执行脚本
-        // 找到脚本文件目录
+        // 找到脚本文件
+        // windows 下脚本文件后缀为 .bat
         File scriptFile = FileUtil.loopFiles(unzipDistDir, 2, null)
                 .stream()
-                .filter(file -> file.isFile() && "generator".equals(file.getName()))
+                .filter(file -> file.isFile() && "generator.bat".equals(file.getName()))
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
 
@@ -367,7 +369,8 @@ public class GeneratorController {
 
         File scriptDir = scriptFile.getParentFile();
 
-        String[] commands = {"./generator", "json-generate", "--file=" + dataModelFilePath};
+        String scriptFileAbsolutePath = scriptFile.getAbsolutePath();
+        String[] commands = {scriptFileAbsolutePath, "json-generate", "--file=" + dataModelFilePath};
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.directory(scriptDir);
 
@@ -383,12 +386,27 @@ public class GeneratorController {
             // 等待命令执行完成
             int exitCode = process.waitFor();
             System.out.println("命令执行结束，退出吗：" + exitCode);
+            if (exitCode != 0) {
+                throw new RuntimeException();
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "执行生成器脚本呢错误");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "执行生成器脚本错误");
         }
-        
-        // 将结果返回给前端
+
+        // 压缩得到的生成结果，将结果返回给前端
+        String generatedPath = scriptDir + File.separator + "generated";
+        String resultPath = tempDirPath + File.separator + "result.zip";
+        File resultFile = ZipUtil.zip(generatedPath, resultPath);
+
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + resultFile.getName());
+        Files.copy(resultFile.toPath(), response.getOutputStream());
+
+        // 清理文件，异步处理提高性能
+        CompletableFuture.runAsync(() -> {
+            FileUtil.del(tempDirPath);
+        });
     }
 
 }

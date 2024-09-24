@@ -66,7 +66,7 @@ const Login: React.FC = () => {
             maxWidth: '75vw',
           }}
           logo={<img alt="logo" style={{ height: '100%' }} src="/logo.png" />}
-          title="前端万用模板"
+          title="极简代码生成"
           subTitle={'快速开发属于自己的前端项目'}
           initialValues={{
             autoLogin: true,
