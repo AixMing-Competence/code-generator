@@ -1,6 +1,6 @@
 package com.aixming.web.model.dto.generator;
 
-import com.aixming.web.meta.Meta;
+import com.aixming.maker.meta.Meta;
 import lombok.Data;
 
 import java.io.Serializable;

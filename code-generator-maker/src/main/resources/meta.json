@@ -18,17 +18,24 @@
         "generateType": "dynamic"
       },
       {
-        "inputPath": ".gitignore",
-        "outputPath": ".gitignore",
-        "type": "file",
-        "generateType": "static",
-        "condition": "needGit"
-      },
-      {
-        "inputPath": "README.md",
-        "outputPath": "README.md",
-        "type": "file",
-        "generateType": "static"
+        "groupKey": "git",
+        "groupName": "开源",
+        "type": "group",
+        "condition": "needGit",
+        "files": [
+          {
+            "inputPath": ".gitignore",
+            "outputPath": ".gitignore",
+            "type": "file",
+            "generateType": "static"
+          },
+          {
+            "inputPath": "README.md",
+            "outputPath": "README.md",
+            "type": "file",
+            "generateType": "static"
+          }
+        ]
       }
     ]
   },
@@ -66,7 +73,7 @@
             "fieldName": "outputText",
             "type": "String",
             "description": "输出信息",
-            "defaultValue": "sum = ",
+            "defaultValue": "sum",
             "abbr": "o"
           }
         ]

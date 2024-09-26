@@ -1,7 +1,7 @@
 package com.aixming.web.model.vo;
 
 import cn.hutool.json.JSONUtil;
-import com.aixming.web.meta.Meta;
+import com.aixming.maker.meta.Meta;
 import com.aixming.web.model.entity.Generator;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;

@@ -1,7 +1,6 @@
 package com.aixming.maker.generator;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ZipUtil;
 import com.aixming.maker.generator.file.DynamicFileGenerator;
 import com.aixming.maker.meta.Meta;
@@ -17,12 +16,31 @@ import java.io.IOException;
  */
 public abstract class GenerateTemplate {
 
+    /**
+     * 生成模板
+     *
+     * @throws TemplateException
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void doGenerate() throws TemplateException, IOException, InterruptedException {
         Meta meta = MetaManager.getMetaObject();
 
         // 获取输出路径
         String projectPath = System.getProperty("user.dir");
         String outputRootPath = projectPath + File.separator + "generated" + File.separator + meta.getName();
+
+        doGenerate(meta, outputRootPath);
+    }
+
+    /**
+     * 生成模板（传参）
+     *
+     * @throws TemplateException
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void doGenerate(Meta meta, String outputRootPath) throws TemplateException, IOException, InterruptedException {
         if (!FileUtil.exist(outputRootPath)) {
             FileUtil.mkdir(outputRootPath);
         }
@@ -124,8 +142,7 @@ public abstract class GenerateTemplate {
      */
     protected void generateCode(Meta meta, String outputRootPath) throws IOException, TemplateException {
         // 读取resources文件
-        ClassPathResource resourcesPath = new ClassPathResource("");
-        String resourcesAbsolutePath = resourcesPath.getAbsolutePath();
+        String resourcesAbsolutePath = "";
 
         // java基础包路径
         String basePackage = String.join("/", meta.getBasePackage().split("\\."));
