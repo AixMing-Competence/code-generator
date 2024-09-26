@@ -3,10 +3,11 @@ import { Button, Card, Form, FormListFieldData, Input, Space } from 'antd';
 
 interface Props {
   formRef: any;
+  oldData: any;
 }
 
 export default (props: Props) => {
-  const { formRef } = props;
+  const { formRef, oldData } = props;
 
   /**
    * 单个表单字段填写视图
@@ -47,8 +48,10 @@ export default (props: Props) => {
       {(fields, { add, remove }) => (
         <div style={{ display: 'flex', rowGap: 16, flexDirection: 'column' }}>
           {fields.map((field) => {
-            const groupKey =
-              formRef?.current?.getFieldValue()?.modelConfig?.models?.[field.name]?.groupKey;
+            // 注意要获取到 groupKey，防止修改时识别分组错误
+            const modelConfig =
+              formRef?.current?.getFieldValue()?.modelConfig ?? oldData.modelConfig;
+            const groupKey = modelConfig?.models?.[field.name]?.groupKey;
 
             return (
               <Card
@@ -87,7 +90,7 @@ export default (props: Props) => {
                 {/* 组内字段 */}
                 {groupKey && (
                   <Form.Item label="组内字段">
-                    <Form.List name={[field.name, 'list']}>
+                    <Form.List name={[field.name, 'models']}>
                       {(subFields, subOpt) => (
                         <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
                           {subFields.map((subField) => {
