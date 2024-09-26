@@ -21,7 +21,8 @@
         "inputPath": ".gitignore",
         "outputPath": ".gitignore",
         "type": "file",
-        "generateType": "static"
+        "generateType": "static",
+        "condition": "needGit"
       },
       {
         "inputPath": "README.md",

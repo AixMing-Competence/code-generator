@@ -1,18 +1,26 @@
 import { COS_HOST } from '@/constants';
-import AuthorInfo from '@/pages/Generator/Detail/components/AuthorInfo';
-import FileConfig from '@/pages/Generator/Detail/components/FileConfig';
-import ModelConfig from '@/pages/Generator/Detail/components/ModelConfig';
 import {
-  downloadGeneratorByIdUsingGet,
   getGeneratorVoByIdUsingGet,
+  useGeneratorUsingPost,
 } from '@/services/backend/generatorController';
 import { useParams } from '@@/exports';
-import { DownloadOutlined, EditOutlined } from '@ant-design/icons';
+import { DownloadOutlined } from '@ant-design/icons';
 import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { useModel } from '@umijs/max';
-import { Button, Col, Image, message, Row, Space, Tabs, Tag, Typography } from 'antd';
+import {
+  Button,
+  Col,
+  Collapse,
+  Form,
+  Image,
+  Input,
+  message,
+  Row,
+  Space,
+  Tag,
+  Typography,
+} from 'antd';
 import { saveAs } from 'file-saver';
-import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'umi';
 
@@ -21,12 +29,16 @@ import { Link } from 'umi';
  * @constructor
  */
 const GeneratorDetailPage: React.FC = () => {
+  const [form] = Form.useForm();
   const { id } = useParams();
   const [data, setData] = useState<API.GeneratorVO>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [downloading, setDownloading] = useState<boolean>(false);
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
   const isMy = currentUser?.id === data.userId;
+
+  const models = data.modelConfig?.models;
 
   /**
    * 标签列表
@@ -76,27 +88,24 @@ const GeneratorDetailPage: React.FC = () => {
    */
   const downloadButton = data.distPath && currentUser && (
     <Button
+      type="primary"
       icon={<DownloadOutlined />}
+      loading={downloading}
       onClick={async () => {
-        const blob = await downloadGeneratorByIdUsingGet(
-          { id: id as any },
+        setDownloading(true);
+        const values = form.getFieldsValue();
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const blob = await useGeneratorUsingPost(
+          { id: id as any, dataModel: values },
           { responseType: 'blob' },
         );
         const fullPath = COS_HOST + data.distPath;
         saveAs(blob, fullPath.substring(fullPath.lastIndexOf('/') + 1));
+        setDownloading(false);
       }}
     >
-      下载
+      生成代码
     </Button>
-  );
-
-  /**
-   * 编辑按钮
-   */
-  const editButton = isMy && (
-    <Link to={`/generator/update?id=${id}`}>
-      <Button icon={<EditOutlined />}>编辑</Button>
-    </Link>
   );
 
   return (
@@ -109,50 +118,60 @@ const GeneratorDetailPage: React.FC = () => {
               {tagsListView(data.tags)}
             </Space>
             <Typography.Paragraph>{data.description}</Typography.Paragraph>
-            <Typography.Paragraph type="secondary">
-              创建时间：{moment(data.createTime).format('YYYY-MM-DD HH:mm:ss')}
-            </Typography.Paragraph>
-            <Typography.Paragraph type="secondary">基础包：{data.basePackage}</Typography.Paragraph>
-            <Typography.Paragraph type="secondary">版本：{data.version}</Typography.Paragraph>
-            <Typography.Paragraph type="secondary">作者：{data.author}</Typography.Paragraph>
             <div style={{ marginBottom: '24px' }}></div>
+            <Form form={form}>
+              {models?.map((model, index) => {
+                if (model.groupKey) {
+                  if (!model.models) {
+                    return <></>;
+                  }
+                  return (
+                    <>
+                      <Collapse
+                        key={index}
+                        items={[
+                          {
+                            key: index,
+                            label: model.groupName + '（分组）',
+                            children: model.models.map((subModel, index) => {
+                              return (
+                                <Form.Item
+                                  label={subModel.fieldName}
+                                  key={index}
+                                  // @ts-ignore
+                                  name={[model.groupKey,subModel.fieldName]}
+                                >
+                                  <Input placeholder={subModel.description} />
+                                </Form.Item>
+                              );
+                            }),
+                          },
+                        ]}
+                        bordered={false}
+                        defaultActiveKey={[index]}
+                      />
+                      <div style={{ marginBottom: 24 }}></div>
+                    </>
+                  );
+                }
+                return (
+                  <Form.Item label={model.fieldName} key={index} name={model.fieldName}>
+                    <Input placeholder={model.description} />
+                  </Form.Item>
+                );
+              })}
+            </Form>
             <Space size="middle">
-              <Link to={`/generator/use/${data.id}`}>
-                <Button type="primary">立即使用</Button>
-              </Link>
               {downloadButton}
-              {editButton}
+              <Link to={`/generator/detail/${id}`}>
+                <Button>查看详情</Button>
+              </Link>
             </Space>
           </Col>
           <Col flex="320px">
             <Image src={data.picture} />
           </Col>
         </Row>
-      </ProCard>
-      <div style={{ marginBottom: '24px' }}></div>
-      <ProCard>
-        <Tabs
-          size="large"
-          defaultActiveKey="fileConfig"
-          items={[
-            {
-              key: 'fileConfig',
-              label: '文件配置',
-              children: <FileConfig data={data} />,
-            },
-            {
-              key: 'modelConfig',
-              label: '模型配置',
-              children: <ModelConfig data={data} />,
-            },
-            {
-              key: 'userInfo',
-              label: '作者信息',
-              children: <AuthorInfo data={data} />,
-            },
-          ]}
-          onChange={() => {}}
-        />
       </ProCard>
     </PageContainer>
   );

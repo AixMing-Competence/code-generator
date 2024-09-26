@@ -41,8 +41,8 @@ export const requestConfig: RequestConfig = {
         throw new Error('服务异常');
       }
 
-      // 如果是 download 请求，不处理
-      if (requestPath.includes('download')) {
+      // 返回的数据类型是 Blob 时直接返回
+      if (data instanceof Blob) {
         return response;
       }
 

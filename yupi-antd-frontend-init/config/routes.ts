@@ -9,6 +9,12 @@ export default [
   },
   { path: '/', icon: 'homeOutlined', component: './Index', name: '首页' },
   {
+    path: '/generator/use/:id',
+    component: './Generator/Use',
+    name: '使用生成器',
+    hideInMenu: true,
+  },
+  {
     path: '/generator/add',
     icon: 'plus',
     component: './Generator/Add',
