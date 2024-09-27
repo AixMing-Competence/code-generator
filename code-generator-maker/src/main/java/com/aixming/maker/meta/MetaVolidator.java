@@ -44,6 +44,11 @@ public class MetaVolidator {
                         .map(subModelInfo -> String.format("\"--%s\"", subModelInfo.getFieldName()))
                         .collect(Collectors.joining(", "));
                 modelInfo.setAllArgsStr(allArgsStr);
+                String description = modelInfo.getDescription();
+                if (StrUtil.isBlank(description)) {
+                    description = "没有描述";
+                    modelInfo.setDescription(description);
+                }
                 continue;
             }
             String fieldName = modelInfo.getFieldName();
@@ -52,7 +57,8 @@ public class MetaVolidator {
             }
             String type = modelInfo.getType();
             if (StrUtil.isBlank(type)) {
-                modelInfo.setType(ModelTypeEnum.STRING.getValue());
+                type = ModelTypeEnum.STRING.getValue();
+                modelInfo.setType(type);
             }
         }
     }

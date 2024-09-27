@@ -64,7 +64,7 @@ const UserRegisterPage: React.FC = () => {
           }}
           logo={<img alt="logo" style={{ height: '100%' }} src="/logo.png" />}
           title="极简代码生成"
-          subTitle={'快速开发属于自己的前端项目'}
+          subTitle={'代码生成器在线制作共享，大幅提升开发效率'}
           initialValues={{
             autoLogin: true,
           }}

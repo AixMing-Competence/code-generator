@@ -1,9 +1,14 @@
 package com.aixming.web.controller;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import cn.hutool.json.JSONUtil;
+import com.aixming.maker.generator.GenerateTemplate;
+import com.aixming.maker.generator.ZipGenerator;
+import com.aixming.maker.meta.Meta;
+import com.aixming.maker.meta.MetaVolidator;
 import com.aixming.web.annotation.AuthCheck;
 import com.aixming.web.common.BaseResponse;
 import com.aixming.web.common.DeleteRequest;
@@ -33,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Map;
@@ -408,5 +414,83 @@ public class GeneratorController {
             FileUtil.del(tempDirPath);
         });
     }
+
+    /**
+     * 制作代码生成器
+     *
+     * @param generatorMakeRequest
+     * @param request
+     * @param response
+     */
+    @PostMapping("/make")
+    public void makeGenerator(@RequestBody GeneratorMakeRequest generatorMakeRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ThrowUtils.throwIf(generatorMakeRequest == null, ErrorCode.PARAMS_ERROR);
+        // 获取输入参数
+        Meta meta = generatorMakeRequest.getMeta();
+        String zipFilePath = generatorMakeRequest.getZipFilePath();
+
+        // 用户是否登录
+        User loginUser = userService.getLoginUser(request);
+        log.info("userId = {} 制作了生成器", loginUser.getId());
+
+        // 创建独立的工作空间
+        String projectPath = System.getProperty("user.dir");
+        long id = IdUtil.getSnowflakeNextId();
+        String tempDirPath = String.format("%s/.temp/make/%s", projectPath, id);
+        String localZipFilePath = tempDirPath + File.separator + "project.zip";
+
+        if (!FileUtil.exist(localZipFilePath)) {
+            FileUtil.touch(localZipFilePath);
+        }
+
+        // 下载压缩包到本地
+        try {
+            cosManager.download(zipFilePath, localZipFilePath);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "下载文件失败");
+        }
+
+        // 解压得到项目模板文件
+        File unZipDistDir = ZipUtil.unzip(localZipFilePath);
+
+        // 构造 meta 对象和文件输出路径
+        String sourceRootPath = unZipDistDir.getAbsolutePath();
+        meta.getFileConfig().setSourceRootPath(sourceRootPath);
+        // 校验和处理默认值
+        MetaVolidator.doVolidateAndFill(meta);
+        String outputRootPath = tempDirPath + "/generated/" + meta.getName();
+
+        // 调用 maker 方法生成生成器
+        GenerateTemplate generator = new ZipGenerator();
+
+        // 处理 models
+        meta.getModelConfig().getModels().stream().forEach(modelInfo -> {
+            // 没有分组，并且 type 为 boolean
+            if (StrUtil.isBlank(modelInfo.getGroupKey()) && modelInfo.getType().equals("boolean") && modelInfo.getDefaultValue() instanceof String) {
+                // 将运行时类型转化为 boolean
+                modelInfo.setDefaultValue(Boolean.parseBoolean((String) modelInfo.getDefaultValue()));
+            }
+        });
+
+        try {
+            generator.doGenerate(meta, outputRootPath);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "制作生成器失败");
+        }
+
+        // 下载制作好的生成器压缩包
+        String suffix = "-dist.zip";
+        String zipFileName = meta.getName() + suffix;
+        String distZipFilePath = outputRootPath + suffix;
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + zipFileName);
+        Files.copy(Paths.get(distZipFilePath), response.getOutputStream());
+
+        // 清理工作空间文件
+        CompletableFuture.runAsync(() -> {
+            FileUtil.del(tempDirPath);
+        });
+    }
+
 
 }

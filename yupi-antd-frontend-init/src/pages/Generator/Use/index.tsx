@@ -36,7 +36,6 @@ const GeneratorDetailPage: React.FC = () => {
   const [downloading, setDownloading] = useState<boolean>(false);
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState ?? {};
-  const isMy = currentUser?.id === data.userId;
 
   const models = data.modelConfig?.models;
 
@@ -139,7 +138,7 @@ const GeneratorDetailPage: React.FC = () => {
                                   label={subModel.fieldName}
                                   key={index}
                                   // @ts-ignore
-                                  name={[model.groupKey,subModel.fieldName]}
+                                  name={[model.groupKey, subModel.fieldName]}
                                 >
                                   <Input placeholder={subModel.description} />
                                 </Form.Item>

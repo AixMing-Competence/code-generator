@@ -1,6 +1,8 @@
 import FileUploader from '@/components/FileUploader';
 import PictureUploader from '@/components/PictureUploader';
 import { COS_HOST, GENERATOR_DIST, GENERATOR_PICTURE } from '@/constants';
+import FileConfigForm from '@/pages/Generator/Add/components/FileConfigForm';
+import GeneratorMaker from '@/pages/Generator/Add/components/GeneratorMaker';
 import ModelConfigForm from '@/pages/Generator/Add/components/ModelConfigForm';
 import {
   addGeneratorUsingPost,
@@ -30,6 +32,10 @@ const GeneratorAddPage: React.FC = () => {
   const id = searchParams.get('id');
   const [oldData, setOldData] = useState<API.GeneratorEditRequest>();
   const formRef = useRef<ProFormInstance>();
+  // 记录表单已填数据
+  const [basicInfo, setBasicInfo] = useState<API.GeneratorEditRequest>();
+  const [fileConfig, setFileConfig] = useState<API.FileConfig>();
+  const [modelConfig, setModelConfig] = useState<API.ModelConfig>();
 
   /**
    * 加载数据
@@ -143,7 +149,14 @@ const GeneratorAddPage: React.FC = () => {
           }}
           onFinish={doSubmit}
         >
-          <StepsForm.StepForm name="base" title="基本信息">
+          <StepsForm.StepForm
+            name="base"
+            title="基本信息"
+            onFinish={async (values) => {
+              setBasicInfo(values);
+              return true;
+            }}
+          >
             <ProFormText name="name" label="名称" placeholder="请输入名称" />
             <ProFormTextArea name="description" label="描述" placeholder="请输入描述" />
             <ProFormText name="basePackage" label="基础包" placeholder="请输入基础包" />
@@ -154,14 +167,22 @@ const GeneratorAddPage: React.FC = () => {
               <PictureUploader biz={GENERATOR_PICTURE} />
             </ProFormItem>
           </StepsForm.StepForm>
-          <StepsForm.StepForm name="fileConfig" title="文件配置">
-            {/*todo 待补充*/}
+          <StepsForm.StepForm
+            name="fileConfig"
+            title="文件配置"
+            onFinish={async (values) => {
+              setFileConfig(values);
+              return true;
+            }}
+          >
+            <FileConfigForm formRef={formRef} oldData={oldData} />
           </StepsForm.StepForm>
           <StepsForm.StepForm
             name="modelConfig"
             title="模型配置"
             onFinish={async (values) => {
               console.log(values);
+              setModelConfig(values);
               return true;
             }}
           >
@@ -171,6 +192,14 @@ const GeneratorAddPage: React.FC = () => {
             <ProFormItem name="distPath" label="产物包">
               <FileUploader biz={GENERATOR_DIST} description="请上传生成器文件压缩包" />
             </ProFormItem>
+            <GeneratorMaker
+              meta={{
+                ...basicInfo,
+                ...fileConfig,
+                ...modelConfig,
+              }}
+            />
+            <div style={{marginBottom: 24}}></div>
           </StepsForm.StepForm>
         </StepsForm>
       )}

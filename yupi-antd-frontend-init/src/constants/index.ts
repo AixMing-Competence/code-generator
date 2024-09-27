@@ -21,3 +21,5 @@ export const USER_AVATAR = 'user_avatar';
 export const GENERATOR_PICTURE = 'generator_picture';
 
 export const GENERATOR_DIST = 'generator_dist';
+
+export const GENERATOR_MAKE_TEMPLATE = 'generator_make_template';
