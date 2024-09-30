@@ -471,7 +471,7 @@ public class GeneratorController {
                 modelInfo.setDefaultValue(Boolean.parseBoolean((String) modelInfo.getDefaultValue()));
             }
         });
-
+        
         try {
             generator.doGenerate(meta, outputRootPath);
         } catch (Exception e) {
@@ -491,6 +491,5 @@ public class GeneratorController {
             FileUtil.del(tempDirPath);
         });
     }
-
-
+    
 }

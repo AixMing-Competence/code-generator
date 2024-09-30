@@ -1,6 +1,6 @@
 import FileUploader from '@/components/FileUploader';
 import PictureUploader from '@/components/PictureUploader';
-import { COS_HOST, GENERATOR_DIST, GENERATOR_PICTURE } from '@/constants';
+import {COS_HOST, GENERATOR_DIST, GENERATOR_PICTURE} from '@/constants';
 import FileConfigForm from '@/pages/Generator/Add/components/FileConfigForm';
 import GeneratorMaker from '@/pages/Generator/Add/components/GeneratorMaker';
 import ModelConfigForm from '@/pages/Generator/Add/components/ModelConfigForm';
@@ -9,9 +9,10 @@ import {
   editGeneratorUsingPost,
   getGeneratorVoByIdUsingGet,
 } from '@/services/backend/generatorController';
-import { useSearchParams } from '@@/exports';
-import type { ProFormInstance } from '@ant-design/pro-components';
+import {useSearchParams} from '@@/exports';
+import type {ProFormInstance} from '@ant-design/pro-components';
 import {
+  LoginForm,
   ProCard,
   ProFormItem,
   ProFormSelect,
@@ -19,9 +20,9 @@ import {
   ProFormTextArea,
   StepsForm,
 } from '@ant-design/pro-components';
-import { history } from '@umijs/max';
-import { message, UploadFile } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import {history} from '@umijs/max';
+import {message, UploadFile} from 'antd';
+import React, {useEffect, useRef, useState} from 'react';
 
 /**
  * 创建生成器页面
@@ -46,9 +47,9 @@ const GeneratorAddPage: React.FC = () => {
     }
 
     try {
-      const res = await getGeneratorVoByIdUsingGet({ id: id as any });
+      const res = await getGeneratorVoByIdUsingGet({id: id as any});
       if (res.data) {
-        const { distPath } = res.data;
+        const {distPath} = res.data;
         // 处理文件路径
         if (distPath) {
           // @ts-ignore
@@ -157,14 +158,14 @@ const GeneratorAddPage: React.FC = () => {
               return true;
             }}
           >
-            <ProFormText name="name" label="名称" placeholder="请输入名称" />
-            <ProFormTextArea name="description" label="描述" placeholder="请输入描述" />
-            <ProFormText name="basePackage" label="基础包" placeholder="请输入基础包" />
-            <ProFormText name="version" label="版本" placeholder="请输入版本" />
-            <ProFormText name="author" label="作者" placeholder="请输入作者" />
-            <ProFormSelect name="tags" label="标签" mode="tags" placeholder="请输入标签列表" />
+            <ProFormText name="name" label="名称" placeholder="请输入名称"/>
+            <ProFormTextArea name="description" label="描述" placeholder="请输入描述"/>
+            <ProFormText name="basePackage" label="基础包" placeholder="请输入基础包"/>
+            <ProFormText name="version" label="版本" placeholder="请输入版本"/>
+            <ProFormText name="author" label="作者" placeholder="请输入作者"/>
+            <ProFormSelect name="tags" label="标签" mode="tags" placeholder="请输入标签列表"/>
             <ProFormItem name="picture" label="图片">
-              <PictureUploader biz={GENERATOR_PICTURE} />
+              <PictureUploader biz={GENERATOR_PICTURE}/>
             </ProFormItem>
           </StepsForm.StepForm>
           <StepsForm.StepForm
@@ -175,7 +176,7 @@ const GeneratorAddPage: React.FC = () => {
               return true;
             }}
           >
-            <FileConfigForm formRef={formRef} oldData={oldData} />
+            <FileConfigForm formRef={formRef} oldData={oldData}/>
           </StepsForm.StepForm>
           <StepsForm.StepForm
             name="modelConfig"
@@ -186,11 +187,11 @@ const GeneratorAddPage: React.FC = () => {
               return true;
             }}
           >
-            <ModelConfigForm formRef={formRef} oldData={oldData} />
+            <ModelConfigForm formRef={formRef} oldData={oldData}/>
           </StepsForm.StepForm>
           <StepsForm.StepForm name="dist" title="生成器文件">
             <ProFormItem name="distPath" label="产物包">
-              <FileUploader biz={GENERATOR_DIST} description="请上传生成器文件压缩包" />
+              <FileUploader biz={GENERATOR_DIST} description="请上传生成器文件压缩包"/>
             </ProFormItem>
             <GeneratorMaker
               meta={{
