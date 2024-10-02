@@ -30,6 +30,7 @@ import com.qcloud.cos.model.COSObjectInputStream;
 import com.qcloud.cos.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -269,6 +270,14 @@ public class GeneratorController {
 
     // endregion
 
+    /**
+     * 根据 id 下载
+     *
+     * @param id
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @GetMapping("/download")
     public void downloadGeneratorById(long id, HttpServletRequest request, HttpServletResponse response) throws IOException {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
@@ -284,15 +293,29 @@ public class GeneratorController {
         // 追踪事件
         log.info("用户 {} 下载了 {}", loginUser, filePath);
 
+        // 设置响应头
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
+
+        // 如果本地有缓存，直接返回
+        String cacheFilePath = getCacheFilePath(id, filePath);
+        if(FileUtil.exist(cacheFilePath)){
+            Files.copy(Paths.get(cacheFilePath),response.getOutputStream());
+            return;
+        }
+
         // 下载
         COSObjectInputStream cosObjectInputStream = null;
         try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
             COSObject cosobject = cosManager.getObject(filePath);
             cosObjectInputStream = cosobject.getObjectContent();
-
+            
             byte[] bytes = IOUtils.toByteArray(cosObjectInputStream);
-            response.setContentType("application/octet-stream;charset=UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=" + filePath);
+
+            stopWatch.stop();
+            System.out.println("下载耗时：" + stopWatch.getTotalTimeMillis());
 
             response.getOutputStream().write(bytes);
             response.getOutputStream().flush();
@@ -332,6 +355,8 @@ public class GeneratorController {
         // 用户是否登录
         User loginUser = userService.getLoginUser(request);
         log.info("userId = {} 使用了生成器 id = {}", loginUser.getId(), id);
+        
+        // todo 如果有缓存，则不需要下载（manager中写一个公用的缓存工具类）
 
         // 从对象存储下载压缩包
         String projectPath = System.getProperty("user.dir");
@@ -350,6 +375,8 @@ public class GeneratorController {
 
         // 解压压缩包，得到脚本文件
         File unzipDistDir = ZipUtil.unzip(zipFilePath, StandardCharsets.UTF_8);
+        
+        // todo 解压过一次的缓存，下次无须再解压
 
         // 将用户输入的参数写入 json 文件
         String dataModelFilePath = tempDirPath + File.separator + "dataModel.json";
@@ -471,7 +498,7 @@ public class GeneratorController {
                 modelInfo.setDefaultValue(Boolean.parseBoolean((String) modelInfo.getDefaultValue()));
             }
         });
-        
+
         try {
             generator.doGenerate(meta, outputRootPath);
         } catch (Exception e) {
@@ -491,5 +518,48 @@ public class GeneratorController {
             FileUtil.del(tempDirPath);
         });
     }
-    
+
+    /**
+     * 缓存代码生成器
+     *
+     * @param generatorCacheRequest
+     */
+    @PostMapping("/cache")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public void cacheGenerator(GeneratorCacheRequest generatorCacheRequest) {
+        ThrowUtils.throwIf(generatorCacheRequest == null, ErrorCode.PARAMS_ERROR);
+        long id = generatorCacheRequest.getId();
+        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+
+        Generator generator = generatorService.getById(id);
+        ThrowUtils.throwIf(generator == null, ErrorCode.NOT_FOUND_ERROR);
+
+        String distPath = generator.getDistPath();
+        ThrowUtils.throwIf(StrUtil.isBlank(distPath), ErrorCode.NOT_FOUND_ERROR, "产物包不存在");
+
+        String localFilePath = getCacheFilePath(id, distPath);
+
+        // 下载文件缓存到本地
+        try {
+            cosManager.download(distPath, localFilePath);
+        } catch (InterruptedException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "缓存文件失败");
+        }
+    }
+
+    /**
+     * 获取缓存文件路径
+     *
+     * @param id
+     * @param distPath
+     * @return
+     */
+    public String getCacheFilePath(long id, String distPath) {
+        String projectPath = System.getProperty("user.dir");
+        // 定义独立的工作空间
+        String tempDirPath = String.format("%s/.temp/cache/%s", projectPath, id);
+        String zipFilePath = tempDirPath + File.separator + distPath;
+        return zipFilePath;
+    }
+
 }
