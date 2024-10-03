@@ -24,6 +24,7 @@ import com.aixming.web.model.entity.User;
 import com.aixming.web.model.vo.GeneratorVO;
 import com.aixming.web.service.GeneratorService;
 import com.aixming.web.service.UserService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qcloud.cos.model.COSObject;
 import com.qcloud.cos.model.COSObjectInputStream;
@@ -209,6 +210,43 @@ public class GeneratorController {
     }
 
     /**
+     * 快速分页获取列表（封装类）
+     *
+     * @param generatorQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/page/vo/fast")
+    public BaseResponse<Page<GeneratorVO>> listGeneratorVOByPageFast(@RequestBody GeneratorQueryRequest generatorQueryRequest,
+                                                                     HttpServletRequest request) {
+        long current = generatorQueryRequest.getCurrent();
+        long size = generatorQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        QueryWrapper<Generator> queryWrapper = new QueryWrapper<Generator>();
+        // sql 优化
+        queryWrapper.select("id",
+                "name",
+                "description",
+                "tags",
+                "picture",
+                "status",
+                "userId",
+                "createTime",
+                "updateTime");
+        // 查询数据库
+        Page<Generator> generatorPage = generatorService.page(new Page<>(current, size), queryWrapper);
+        // 获取封装类
+        Page<GeneratorVO> generatorVOPage = generatorService.getGeneratorVOPage(generatorPage, request);
+        // 精简数据，不返回不需要的数据
+        generatorVOPage.getRecords().stream().forEach(generatorVO -> {
+            generatorVO.setFileConfig(null);
+            generatorVO.setModelConfig(null);
+        });
+        return ResultUtils.success(generatorVOPage);
+    }
+
+    /**
      * 分页获取当前登录用户创建的代码生成器列表
      *
      * @param generatorQueryRequest
@@ -299,8 +337,8 @@ public class GeneratorController {
 
         // 如果本地有缓存，直接返回
         String cacheFilePath = getCacheFilePath(id, filePath);
-        if(FileUtil.exist(cacheFilePath)){
-            Files.copy(Paths.get(cacheFilePath),response.getOutputStream());
+        if (FileUtil.exist(cacheFilePath)) {
+            Files.copy(Paths.get(cacheFilePath), response.getOutputStream());
             return;
         }
 
@@ -311,7 +349,7 @@ public class GeneratorController {
             stopWatch.start();
             COSObject cosobject = cosManager.getObject(filePath);
             cosObjectInputStream = cosobject.getObjectContent();
-            
+
             byte[] bytes = IOUtils.toByteArray(cosObjectInputStream);
 
             stopWatch.stop();
@@ -355,7 +393,7 @@ public class GeneratorController {
         // 用户是否登录
         User loginUser = userService.getLoginUser(request);
         log.info("userId = {} 使用了生成器 id = {}", loginUser.getId(), id);
-        
+
         // todo 如果有缓存，则不需要下载（manager中写一个公用的缓存工具类）
 
         // 从对象存储下载压缩包
@@ -375,7 +413,7 @@ public class GeneratorController {
 
         // 解压压缩包，得到脚本文件
         File unzipDistDir = ZipUtil.unzip(zipFilePath, StandardCharsets.UTF_8);
-        
+
         // todo 解压过一次的缓存，下次无须再解压
 
         // 将用户输入的参数写入 json 文件
@@ -561,5 +599,8 @@ public class GeneratorController {
         String zipFilePath = tempDirPath + File.separator + distPath;
         return zipFilePath;
     }
+
+    // 之前存模板文件是为了复用文件上传组件
+    // todo 模板文件上传一次后就没用了，不需要存在 cos ，节省资源，提升性能，所以可将模板文件直接发给后端
 
 }
