@@ -1,6 +1,8 @@
 package com.aixming.web.controller;
 
+import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
@@ -31,6 +33,8 @@ import com.qcloud.cos.model.COSObjectInputStream;
 import com.qcloud.cos.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +50,7 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 代码生成器接口
@@ -65,6 +70,9 @@ public class GeneratorController {
 
     @Resource
     private CosManager cosManager;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     // region 增删改查
 
@@ -221,6 +229,17 @@ public class GeneratorController {
                                                                      HttpServletRequest request) {
         long current = generatorQueryRequest.getCurrent();
         long size = generatorQueryRequest.getPageSize();
+
+        // 先从缓存中获取
+        String cacheKey = getPageCacheKey(generatorQueryRequest);
+        ValueOperations<String, String> opsForValue = stringRedisTemplate.opsForValue();
+        String cacheValue = opsForValue.get(cacheKey);
+        if (StrUtil.isNotBlank(cacheValue)) {
+            Page<GeneratorVO> generatorVOPage = JSONUtil.toBean(cacheValue, new TypeReference<Page<GeneratorVO>>() {
+            }, false);
+            return ResultUtils.success(generatorVOPage);
+        }
+
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         QueryWrapper<Generator> queryWrapper = new QueryWrapper<Generator>();
@@ -243,6 +262,8 @@ public class GeneratorController {
             generatorVO.setFileConfig(null);
             generatorVO.setModelConfig(null);
         });
+        // 写入缓存
+        opsForValue.set(cacheKey, JSONUtil.toJsonStr(generatorVOPage), 120, TimeUnit.MINUTES);
         return ResultUtils.success(generatorVOPage);
     }
 
@@ -598,6 +619,19 @@ public class GeneratorController {
         String tempDirPath = String.format("%s/.temp/cache/%s", projectPath, id);
         String zipFilePath = tempDirPath + File.separator + distPath;
         return zipFilePath;
+    }
+
+    /**
+     * 获取分页缓存 key
+     *
+     * @param generatorQueryRequest
+     * @return
+     */
+    private String getPageCacheKey(GeneratorQueryRequest generatorQueryRequest) {
+        String jsonStr = JSONUtil.toJsonStr(generatorQueryRequest);
+        String base64 = Base64Encoder.encode(jsonStr);
+        String key = "generator:page:" + base64;
+        return key;
     }
 
     // 之前存模板文件是为了复用文件上传组件
