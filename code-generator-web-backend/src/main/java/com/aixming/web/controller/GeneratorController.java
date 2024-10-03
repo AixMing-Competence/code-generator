@@ -19,6 +19,7 @@ import com.aixming.web.common.ResultUtils;
 import com.aixming.web.constant.UserConstant;
 import com.aixming.web.exception.BusinessException;
 import com.aixming.web.exception.ThrowUtils;
+import com.aixming.web.manager.CacheManager;
 import com.aixming.web.manager.CosManager;
 import com.aixming.web.model.dto.generator.*;
 import com.aixming.web.model.entity.Generator;
@@ -34,7 +35,6 @@ import com.qcloud.cos.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,7 +50,6 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 代码生成器接口
@@ -73,6 +72,9 @@ public class GeneratorController {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private CacheManager cacheManager;
 
     // region 增删改查
 
@@ -232,8 +234,7 @@ public class GeneratorController {
 
         // 先从缓存中获取
         String cacheKey = getPageCacheKey(generatorQueryRequest);
-        ValueOperations<String, String> opsForValue = stringRedisTemplate.opsForValue();
-        String cacheValue = opsForValue.get(cacheKey);
+        String cacheValue = cacheManager.get(cacheKey);
         if (StrUtil.isNotBlank(cacheValue)) {
             Page<GeneratorVO> generatorVOPage = JSONUtil.toBean(cacheValue, new TypeReference<Page<GeneratorVO>>() {
             }, false);
@@ -263,7 +264,7 @@ public class GeneratorController {
             generatorVO.setModelConfig(null);
         });
         // 写入缓存
-        opsForValue.set(cacheKey, JSONUtil.toJsonStr(generatorVOPage), 120, TimeUnit.MINUTES);
+        cacheManager.put(cacheKey, JSONUtil.toJsonStr(generatorVOPage));
         return ResultUtils.success(generatorVOPage);
     }
 
