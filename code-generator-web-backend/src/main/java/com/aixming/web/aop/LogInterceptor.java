@@ -1,17 +1,17 @@
 package com.aixming.web.aop;
 
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 /**
  * 请求响应日志 AOP
@@ -26,7 +26,7 @@ public class LogInterceptor {
     /**
      * 执行拦截
      */
-    @Around("execution(* com.aixming.web.controller.*.*(..))")
+    // @Around("execution(* com.aixming.web.controller.*.*(..))")
     public Object doInterceptor(ProceedingJoinPoint point) throws Throwable {
         // 计时
         StopWatch stopWatch = new StopWatch();
