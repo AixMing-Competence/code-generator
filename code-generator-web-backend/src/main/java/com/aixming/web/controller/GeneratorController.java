@@ -2,7 +2,6 @@ package com.aixming.web.controller;
 
 import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
@@ -34,7 +33,6 @@ import com.qcloud.cos.model.COSObjectInputStream;
 import com.qcloud.cos.utils.IOUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,9 +67,6 @@ public class GeneratorController {
 
     @Resource
     private CosManager cosManager;
-
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
 
     @Resource
     private CacheManager cacheManager;
@@ -234,11 +229,9 @@ public class GeneratorController {
 
         // 先从缓存中获取
         String cacheKey = getPageCacheKey(generatorQueryRequest);
-        String cacheValue = cacheManager.get(cacheKey);
-        if (StrUtil.isNotBlank(cacheValue)) {
-            Page<GeneratorVO> generatorVOPage = JSONUtil.toBean(cacheValue, new TypeReference<Page<GeneratorVO>>() {
-            }, false);
-            return ResultUtils.success(generatorVOPage);
+        Object cacheValue = cacheManager.get(cacheKey);
+        if (cacheValue != null) {
+            return ResultUtils.success((Page<GeneratorVO>) cacheValue);
         }
 
         // 限制爬虫
@@ -258,13 +251,8 @@ public class GeneratorController {
         Page<Generator> generatorPage = generatorService.page(new Page<>(current, size), queryWrapper);
         // 获取封装类
         Page<GeneratorVO> generatorVOPage = generatorService.getGeneratorVOPage(generatorPage, request);
-        // 精简数据，不返回不需要的数据
-        generatorVOPage.getRecords().stream().forEach(generatorVO -> {
-            generatorVO.setFileConfig(null);
-            generatorVO.setModelConfig(null);
-        });
         // 写入缓存
-        cacheManager.put(cacheKey, JSONUtil.toJsonStr(generatorVOPage));
+        cacheManager.put(cacheKey, generatorVOPage);
         return ResultUtils.success(generatorVOPage);
     }
 

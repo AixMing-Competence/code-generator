@@ -2,7 +2,7 @@ package com.aixming.web.manager;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -17,12 +17,12 @@ import java.util.concurrent.TimeUnit;
 public class CacheManager {
 
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    private RedisTemplate<String,Object> redisTemplate;
 
     /**
      * 本地缓存
      */
-    Cache<String, String> localCache = Caffeine.newBuilder()
+    Cache<String, Object> localCache = Caffeine.newBuilder()
             .expireAfterWrite(120, TimeUnit.MINUTES)
             .maximumSize(10_000)
             .build();
@@ -33,9 +33,9 @@ public class CacheManager {
      * @param key
      * @param value
      */
-    public void put(String key, String value) {
+    public void put(String key, Object value) {
         localCache.put(key, value);
-        stringRedisTemplate.opsForValue().set(key, value, 120, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, value, 120, TimeUnit.MINUTES);
     }
 
     /**
@@ -44,14 +44,14 @@ public class CacheManager {
      * @param key
      * @return
      */
-    public String get(String key) {
+    public Object get(String key) {
         // 先从本地缓存获取
-        String value = localCache.getIfPresent(key);
+        Object value = localCache.getIfPresent(key);
         if (value != null) {
             return value;
         }
         // 本地缓存未命中，尝试从 redis 获取
-        value = stringRedisTemplate.opsForValue().get(key);
+        value = redisTemplate.opsForValue().get(key);
         if (value != null) {
             // 将 redis 的值写入本地缓存
             localCache.put(key, value);
@@ -67,7 +67,7 @@ public class CacheManager {
      */
     public void delete(String key) {
         localCache.invalidate(key);
-        stringRedisTemplate.delete(key);
+        redisTemplate.delete(key);
     }
 
 }
