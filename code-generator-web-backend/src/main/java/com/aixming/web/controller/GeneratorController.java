@@ -227,7 +227,7 @@ public class GeneratorController {
         long current = generatorQueryRequest.getCurrent();
         long size = generatorQueryRequest.getPageSize();
 
-        // 先从缓存中获取
+        // 先从多级缓存中获取
         String cacheKey = getPageCacheKey(generatorQueryRequest);
         Object cacheValue = cacheManager.get(cacheKey);
         if (cacheValue != null) {
@@ -251,7 +251,7 @@ public class GeneratorController {
         Page<Generator> generatorPage = generatorService.page(new Page<>(current, size), queryWrapper);
         // 获取封装类
         Page<GeneratorVO> generatorVOPage = generatorService.getGeneratorVOPage(generatorPage, request);
-        // 写入缓存
+        // 写入多级缓存
         cacheManager.put(cacheKey, generatorVOPage);
         return ResultUtils.success(generatorVOPage);
     }
@@ -405,27 +405,30 @@ public class GeneratorController {
         log.info("userId = {} 使用了生成器 id = {}", loginUser.getId(), id);
 
         // todo 如果有缓存，则不需要下载（manager中写一个公用的缓存工具类）
-
-        // 从对象存储下载压缩包
         String projectPath = System.getProperty("user.dir");
         // 定义独立的工作空间
         String tempDirPath = String.format("%s/.temp/use/%s", projectPath, id);
         String zipFilePath = tempDirPath + File.separator + "dist.zip";
-        if (!FileUtil.exist(zipFilePath)) {
-            FileUtil.touch(zipFilePath);
-        }
-
-        try {
-            cosManager.download(distPath, zipFilePath);
-        } catch (InterruptedException e) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成器下载失败");
+        String cacheFilePath = getCacheFilePath(id, distPath);
+        // 查看缓存
+        if (FileUtil.exist(cacheFilePath)) {
+            FileUtil.copy(cacheFilePath, zipFilePath, false);
+        } else {
+            // 从对象存储下载压缩包
+            if (!FileUtil.exist(zipFilePath)) {
+                FileUtil.touch(zipFilePath);
+            }
+            try {
+                cosManager.download(distPath, zipFilePath);
+            } catch (InterruptedException e) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "生成器下载失败");
+            }
         }
 
         // 解压压缩包，得到脚本文件
         File unzipDistDir = ZipUtil.unzip(zipFilePath, StandardCharsets.UTF_8);
-
         // todo 解压过一次的缓存，下次无须再解压
-
+        
         // 将用户输入的参数写入 json 文件
         String dataModelFilePath = tempDirPath + File.separator + "dataModel.json";
         String jsonStr = JSONUtil.toJsonStr(dataModel);

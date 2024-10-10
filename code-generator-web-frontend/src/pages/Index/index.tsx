@@ -1,16 +1,19 @@
-import { listGeneratorVoByPageUsingPost } from '@/services/backend/generatorController';
-import { PageContainer, ProFormSelect, ProFormText, QueryFilter } from '@ant-design/pro-components';
-import { history } from '@umijs/max';
-import { Avatar, Card, Flex, Image, Input, List, message, Tabs, Tag, Typography } from 'antd';
+import {
+  listGeneratorVoByPageFastUsingPost,
+  listGeneratorVoByPageUsingPost
+} from '@/services/backend/generatorController';
+import {PageContainer, ProFormSelect, ProFormText, QueryFilter} from '@ant-design/pro-components';
+import {history} from '@umijs/max';
+import {Avatar, Card, Flex, Image, Input, List, message, Tabs, Tag, Typography} from 'antd';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 
 /**
  * 初始化参数（不可改变）
  */
 const INIT_PARAMS: PageRequest = {
   current: 1,
-  pageSize: 4,
+  pageSize: 12,
   sortField: 'createTime',
   sortOrder: 'descend',
 };
@@ -37,7 +40,7 @@ const IndexPage: React.FC = () => {
     }
 
     return (
-      <div style={{ marginBottom: 16 }}>
+      <div style={{marginBottom: 16}}>
         {tags.map((tag) => (
           <Tag key={tag}>{tag}</Tag>
         ))}
@@ -48,7 +51,7 @@ const IndexPage: React.FC = () => {
   const doSearch = async () => {
     setLoading(true);
     try {
-      const res = await listGeneratorVoByPageUsingPost({
+      const res = await listGeneratorVoByPageFastUsingPost({
         ...searchParams,
       });
       setDataList(res.data?.records ?? []);
@@ -86,7 +89,7 @@ const IndexPage: React.FC = () => {
           }}
         />
       </Flex>
-      <div style={{ marginBottom: 16 }}></div>
+      <div style={{marginBottom: 16}}></div>
       <Tabs
         size="large"
         defaultActiveKey="1"
@@ -100,13 +103,14 @@ const IndexPage: React.FC = () => {
             label: '推荐',
           },
         ]}
-        onChange={() => {}}
+        onChange={() => {
+        }}
       />
       <QueryFilter
         span={12}
         labelWidth="auto"
         labelAlign="left"
-        style={{ padding: '16px 0' }}
+        style={{padding: '16px 0'}}
         onFinish={async (value: API.GeneratorQueryRequest) => {
           console.log(searchParams.searchText);
           setSearchParams({
@@ -117,11 +121,11 @@ const IndexPage: React.FC = () => {
         }}
         autoFocusFirstInput={false}
       >
-        <ProFormSelect name="tags" label="标签" mode="tags" />
-        <ProFormText name="name" label="名称" />
-        <ProFormText name="description" label="描述" />
+        <ProFormSelect name="tags" label="标签" mode="tags"/>
+        <ProFormText name="name" label="名称"/>
+        <ProFormText name="description" label="描述"/>
       </QueryFilter>
-      <div style={{ marginBottom: 16 }}></div>
+      <div style={{marginBottom: 16}}></div>
       <List<API.GeneratorVO>
         rowKey="id"
         loading={loading}
@@ -151,7 +155,7 @@ const IndexPage: React.FC = () => {
           <List.Item>
             <Card
               hoverable
-              cover={<Image alt={data.name} src={data.picture} />}
+              cover={<Image alt={data.name} src={data.picture}/>}
               onClick={() => {
                 history.push(`/generator/detail/${data.id}`);
               }}
@@ -175,12 +179,12 @@ const IndexPage: React.FC = () => {
               <Flex justify="space-between" align="center">
                 <Typography.Paragraph
                   type="secondary"
-                  style={{ fontSize: 12, margin: 0, padding: 0, display: 'flex' }}
+                  style={{fontSize: 12, margin: 0, padding: 0, display: 'flex'}}
                 >
                   {moment(data.createTime).fromNow()}
                 </Typography.Paragraph>
                 <div>
-                  <Avatar src={data.user?.userAvatar} />
+                  <Avatar src={data.user?.userAvatar}/>
                 </div>
               </Flex>
             </Card>

@@ -65,6 +65,10 @@ declare namespace API {
     message?: string;
   };
 
+  type cacheGeneratorUsingPOSTParams = {
+    id?: number;
+  };
+
   type DeleteRequest = {
     id?: number;
   };
